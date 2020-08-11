@@ -1,0 +1,918 @@
+title: Home
+#background: rgb(28,28,28)
+#background: no-repeat center/cover url("/local/images/bg-bokeh-03.png")
+
+custom_header:
+  compact_mode: true
+  # header_text: '{{ dayNameLong }} {{ dayNumLZ }} {{ monthNameLong }} {{ year4d }}<br>{{ time }}'
+  # header_text_css: 'Roboto,sans-serif; font-weight: bold; margin-top: 5px;'
+  # hide_config: true
+  # hide_help: true
+  # menu_dropdown: true
+  # indicator_top: true
+  elements_color: var(--primary-color)
+  active_tab_color: var(--accent-color)
+  tab_indicator_color: var(--primary-color)
+  button_icons:
+    options: mdi:tune
+
+button_card_templates:
+  devider:
+    name: <img src=/local/images/trans.png>
+    styles:
+      card: 
+        - background: none
+      name:
+        - width: 90%
+        - height: 0px
+        - border-top: 1px solid rgba(155, 155, 155, 0.5)
+  toggles:    
+    aspect_ratio: 1/1
+    state:
+      - value: unavailable
+        color: 'red'
+      - value: 'on'
+        styles:
+          icon:
+            - color: var(--accent-color)
+          card:
+            - animation: wiggle 1s
+    extra_styles: |
+      @keyframes wiggle {
+        0% { transform: rotate(0deg); }
+        5% { transform: rotate(10deg); }
+        10% { transform: rotate(-10deg); }
+        15% { transform: rotate(0deg); }
+        25% { transform: rotate(10deg); }
+        30% { transform: rotate(-10deg); }
+        35% { transform: rotate(0deg); }
+        40% { transform: rotate(10deg); }
+        45% { transform: rotate(-10deg); }
+        50% { transform: rotate(0deg); }
+        55% { transform: rotate(10deg); }
+        60% { transform: rotate(-10deg); }
+        65% { transform: rotate(0deg); }
+        70% { transform: rotate(10deg); }
+        75% { transform: rotate(-10deg); }
+        80% { transform: rotate(0deg); }
+        85% { transform: rotate(10deg); }
+        95% { transform: rotate(-10deg); }
+        100% { transform: rotate(0deg); }
+      }
+
+    custom_fields:
+      notification: >
+        [[[ 
+          if (Math.round((new Date() - new Date(entity.last_changed))  / 60000) < 60)
+            return Math.round((new Date() - new Date(entity.last_changed)) / 60000);
+          else if (Math.round((new Date() - new Date(entity.last_changed)) / 3600000) < 24) 
+            return Math.round((new Date() - new Date(entity.last_changed)) / 3600000);
+          else if (Math.round((new Date() - new Date(entity.last_changed)) / 86400000) < 30)
+            return Math.round((new Date() - new Date(entity.last_changed)) / 86400000);
+          else 
+            return Math.round((new Date() - new Date(entity.last_changed)) / 2592000000);
+        ]]]
+    hold_action:
+      action: more-info
+    styles:
+      card:
+        - font-size: 75%
+        - box-shadow: none
+        - background: none 
+        - border: 1px solid rgba(155, 155, 155, 0.05)
+        - padding-bottom: 10%
+      custom_fields:
+        notification:
+          - background-color: >
+              [[[
+                if (Math.round((new Date() - new Date(entity.last_changed))  / 60000) < 60)
+                  return "rgba(9, 169, 254, 0.15)";
+                else if (Math.round((new Date() - new Date(entity.last_changed)) / 3600000) < 24)
+                  return "rgba(155, 155, 155, 0.15)";
+                else if (Math.round((new Date() - new Date(entity.last_changed)) / 86400000) < 30)
+                  return "rgba(255, 0, 92, 0.08)";
+                else 
+                  return "rgba(255, 0, 0, 1)";
+              ]]] 
+          - border-radius: 50%
+          - position: absolute
+          - left: 60%
+          - top: 10%
+          - padding: 3%
+          - min-width: 20%
+          - font-size: 80%
+          # - line-height: 15px
+      grid:
+        - position: relative
+        - grid-template-areas: '"i" "n" "s"'
+
+  sensors:
+    template: toggles
+    tap_action:
+      action: more-info
+
+  two_column:
+    template: toggles
+    aspect_ratio: 2/1
+    variables:
+      top_right: 'test'
+      bottom_right: 'test'
+      graph_entity: '[[[ return entity.entity_id ]]]'
+    custom_fields:
+      top_right: '[[[ return variables.top_right; ]]]'
+      bottom_right: '[[[ return variables.bottom_right; ]]]'
+      graph:
+        card:
+          type: custom:mini-graph-card
+          entities: 
+            - '[[[ return variables.graph_entity ]]]'
+          show:
+            name: false
+            icon: false
+            state: false
+            legend: false
+            fill: false
+          hours_to_show: 24
+          points_per_hour: 12
+          line_color: var(--accent-color)
+          line_width: 3
+          style: |
+            ha-card {
+              box-shadow: none;
+              background: none;
+            }
+    styles:
+      custom_fields:
+        notification:
+          - left: 30%
+          - top: 0%
+          - min-width: 8%
+        top_right:
+          - font-weight: bold
+        bottom_right:
+          - font-weight: bold
+        graph:
+          - position: absolute
+          - background-color: none
+          - left: 0%
+          - top: 50%
+          - width: 100%
+      grid:
+        - grid-template-areas: '"i top_right" "n bottom_right"'
+        - grid-template-columns: 50% 50%
+
+  thermostat:
+    template: two_column
+    state:
+      - operator: template
+        value: >
+          [[[ 
+            return entity.state == 'off'
+            && states['input_text.' + entity.entity_id.split(".")[1] ].state == 'auto_off'
+          ]]]
+        color: 'green'
+    aspect_ratio: 1.6/1
+    styles:
+      card:
+        - padding-bottom: 20%
+      custom_fields:
+        graph:
+          - top: 70% 
+
+  sensors_battery_level:
+    template: toggles
+    custom_fields:
+      notification: >
+        [[[ 
+          return Math.round(entity.attributes.battery_level)
+        ]]]
+    tap_action:
+      action: more-info
+    styles:
+      custom_fields:
+        notification:
+          - background-color: >
+              [[[
+                if (entity.attributes.battery_level < 30)
+                  return "red";
+                else if (entity.attributes.battery_level < 40)
+                  return "orange";
+                else
+                  return 'rgba(150,150,150, 0.5)';
+              ]]] 
+          - border-radius: 50%
+          - position: absolute
+          - left: 60%
+          - top: 10%
+          - height: 20px
+          - width: 20px
+          - font-size: 10px
+          - line-height: 20px
+      
+  popups:
+    template: toggles
+    aspect_ratio: 1.5/1
+          
+views:
+  - title: home
+    path: home
+    panel: true
+    badges: []
+    icon: 'mdi:view-dashboard-variant-outline'
+    id: home
+    cards:
+      - id: home
+        type: custom:vertical-stack-in-card
+        style: |
+          ha-card {
+            background: none;
+            box-shadow: none;
+            width: 98%;
+            max-width: 800px;
+            align: center;
+            margin: 3% auto auto auto;
+          }
+          .card-header {
+            font-size: 20px;
+            font-weight: bold;
+          }
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d0001dc020b
+                name: Porch
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d0001002c39
+                name: Entrance
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d00011737e0
+                name: Stairs
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d0001a8e45e
+                name: Pantry
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d0001837fda
+                name: Pantry
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d000276c452
+                name: Garage
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d00014dc9bc
+                name: Kitchen
+                template: sensors
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d00014dc02e
+                name: Lounge
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d000187666f
+                name: Backyard
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d0001033076
+                name: Backyard
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d0001875f2b
+                name: Laundry
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d0001875eb7
+                name: Deck
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d00011447ea
+                name: Upstairs
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d000154a9dd
+                name: Bedroom
+                template: sensors
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: binary_sensor.master_bed_presense_left
+                icon: mdi:bed-king-outline
+                name: Bed Left
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.master_bed_presense_right
+                icon: mdi:bed-king-outline
+                name: Bed Right
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d000116c4cd
+                name: Office
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d000275c69b
+                name: Closet
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d0001ad43ec
+                name: Closet
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.motion_sensor_158d000113df3e
+                name: Ensuite
+                template: sensors
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d000106df69
+                name: Guest
+                template: sensors
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: binary_sensor.door_window_sensor_158d000275b74a
+                name: Bath
+                template: sensors
+              - type: "custom:button-card"
+                color_type: blank-card
+              - type: "custom:button-card"
+                color_type: blank-card
+              - type: "custom:button-card"
+                color_type: blank-card
+              - type: "custom:button-card"
+                color_type: blank-card
+              - type: "custom:button-card"
+                color_type: blank-card
+              - type: "custom:button-card"
+                color_type: blank-card
+          - type: "custom:button-card"
+            template: devider
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: switch.frontroom_wall_switch_plate_bottom
+                name: Porch
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.garage_door
+                name: Garage
+                icon: mdi:garage-variant
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.garage_ceiling_light_switch
+                name: Garage
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.frontroom_cabinet_spot_lights_plug
+                name: Study
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.frontroom_wall_switch_plate_top
+                name: Study
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.pantry_lights_switch
+                name: Pantry
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.kitchen_led_strip_plug
+                name: Kitchen
+                template: toggles
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: light.kitchen_lights
+                name: Kitchen
+                icon: bha:kitchen-lights
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.kitchen_wall_switch_plate_bottom
+                name: Kitchen
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.lounge_cabinet_spot_lights_plug
+                name: Lounge
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.lounge_led_strips
+                name: Lounge
+                icon: mdi:led-strip
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.lounge_downlights
+                name: Lounge
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.laundry_ceiling_light_switch
+                name: Laundry
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.lounge_wall_switch_plate_top
+                name: Backyard
+                template: toggles
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: switch.backyard_ambient_lights_plug
+                name: Backyard
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.stairs_lights_plug
+                name: Stairs
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.master_bedside_lights
+                name: Bedroom
+                icon: mdi:lightbulb-multiple-outline
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.master_bed_led_strips
+                name: Bedroom
+                icon: mdi:led-strip-variant
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.master_downlights
+                name: Bedroom
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.master_bed_heater_switch
+                name: Bedroom
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.office_downlights
+                name: Office
+                template: toggles
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: switch.office_cabinet_spot_lights_plug
+                name: Office
+                template: toggles
+              - type: "custom:button-card"
+                entity: light.office_cabinet_led_strip
+                name: Office
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.office_wall_switch_plate_top
+                name: Closet
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.master_bath_wall_switch_plate_top
+                name: Ensuite
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.master_bath_wall_switch_plate_bottom
+                name: Ensuite
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.rishi_room_wall_switch_plate_bottom
+                name: Rishi
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.rishi_bed_heater_switch
+                name: Rishi
+                template: toggles
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: switch.guest_bath_wall_switch_plate_top
+                name: Bath
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.guest_bath_wall_switch_plate_bottom
+                name: Bath
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.rishi_room_wall_switch_plate_top
+                name: Gaming PC
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.nas
+                icon: mdi:nas
+                name: NAS
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.rishi_gadgets
+                name: Gadgets
+                template: toggles
+                icon: mdi:gamepad-variant-outline
+              - type: "custom:button-card"
+                entity: switch.rishi_homework
+                icon: mdi:school-outline
+                name: Homework
+                template: toggles
+              - type: "custom:button-card"
+                entity: switch.loungetv_internet
+                icon: mdi:television-play
+                name: Lounge TV
+                template: toggles
+          - type: "custom:button-card"
+            template: devider
+          - type: horizontal-stack
+            cards:
+              # - type: "custom:button-card"
+              #   entity: weather.home
+              #   name: Outside
+              #   icon: mdi:weather-partly-cloudy
+              #   template: two_column
+              #   variables:
+              #     top_right: '[[[ return entity.attributes.temperature + "c"; ]]]'
+              #     bottom_right: '[[[ return entity.attributes.humidity + "%"; ]]]'
+              - type: "custom:button-card"
+                entity: switch.aircon_power
+                name: HVAC
+                icon: bha:aircon
+                template: two_column
+                aspect_ratio: 1.6/1
+                styles:
+                  card:
+                    - padding-bottom: 20%
+                  custom_fields:
+                    graph:
+                      - top: 70%
+                variables:
+                  top_right: '[[[ return states["sensor.aircon_target_temp"].state + "&#8451"; ]]]'
+                  bottom_right: >
+                    [[[ 
+                      if (states["automation.auto_toggle_aircon"].state == "on")
+                        return "Auto";
+                      else 
+                        return states["automation.auto_toggle_aircon"].state.toUpperCase();
+                    ]]]
+                  graph_entity: climate.aircon
+              - type: "custom:button-card"
+                entity: switch.lounge_damper
+                triggers_update:
+                  - input_text.lounge_damper
+                name: Lounge
+                icon: mdi:sofa
+                template: thermostat
+                variables:
+                  top_right: '[[[ return states["sensor.lounge_temperature"].state + "&#8451"; ]]]'
+                  bottom_right: '[[[ return states["sensor.lounge_humidity"].state + "%"; ]]]'
+                  graph_entity: sensor.lounge_temperature
+              - type: "custom:button-card"
+                entity: switch.master_damper
+                triggers_update:
+                  - input_text.master_damper
+                name: Bedroom
+                icon: mdi:hotel
+                template: thermostat
+                variables:
+                  top_right: '[[[ return states["sensor.temperature_158d0001f53de5"].state + "&#8451"; ]]]'
+                  bottom_right: '[[[ return states["sensor.humidity_158d0001f53de5"].state + "%"; ]]]'
+                  graph_entity: sensor.temperature_158d0001f53de5
+              - type: "custom:button-card"
+                entity: switch.rishiroom_damper
+                triggers_update:
+                  - input_text.rishiroom_damper
+                name: Kids
+                icon: mdi:account-child-outline
+                template: thermostat
+                variables:
+                  top_right: '[[[ return states["sensor.temperature_158d0001fa5a1d"].state + "&#8451"; ]]]'
+                  bottom_right: '[[[ return states["sensor.humidity_158d0001fa5a1d"].state + "%"; ]]]'
+                  graph_entity: sensor.temperature_158d0001fa5a1d
+              # - type: "custom:button-card"
+              #   entity: switch.guest_damper
+              #   triggers_update:
+              #     - input_text.guest_damper
+              #   name: Guest
+              #   icon: mdi:account-clock-outline
+              #   template: thermostat
+              #   variables:
+              #     top_right: '[[[ return states["sensor.temperature_158d0001fa5a1d"].state + "&#8451"; ]]]'
+              #     bottom_right: '[[[ return states["sensor.humidity_158d0001fa5a1d"].state + "%"; ]]]'
+              #     graph_entity: sensor.temperature_158d0001fa5a1d
+          - type: "custom:button-card"
+            template: devider
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: sensor.total_power_consumption
+                name: Total
+                icon: mdi:flash
+                template: two_column
+                variables:
+                  top_right: '[[[ return entity.state + "W"; ]]]'
+                  bottom_right: '[[[ return states["sensor.total_energy_consumption"].state + "kWh"; ]]]'
+              - type: "custom:button-card"
+                entity: sensor.grid_power_consumption
+                name: Grid
+                icon: mdi:transmission-tower
+                template: two_column
+                variables:
+                  top_right: '[[[ return entity.state + "W"; ]]]'
+                  bottom_right: '[[[ return states["sensor.grid_energy_consumption"].state + "kWh"; ]]]'
+                  graph_entity: sensor.shelly_shem_060d84_1_current_consumption
+                custom_fields:
+                  graph:
+                    card:
+                      color_thresholds: 
+                        - value: 0
+                          color: 'rgb(19, 244, 239, 1)'
+                        - value: 1
+                          color: 'rgb(255, 0, 92, 1)'
+              - type: "custom:button-card"
+                entity: sensor.solar_power_prod
+                name: Prod
+                icon: mdi:solar-power
+                template: two_column
+                variables:
+                  top_right: '[[[ return entity.state + "W"; ]]]'
+                  bottom_right: '[[[ return states["sensor.solar_energy_prod"].state + "kWh"; ]]]'
+              - type: "custom:button-card"
+                entity: sensor.solar_power_feed
+                name: Export
+                icon: mdi:transfer-up
+                template: two_column
+                variables:
+                  top_right: '[[[ return entity.state + "W"; ]]]'
+                  bottom_right: '[[[ return states["sensor.solar_energy_feed"].state + "kWh"; ]]]'
+                  graph_entity: sensor.shelly_shem_060d84_1_current_consumption
+                custom_fields:
+                  graph:
+                    card:
+                      color_thresholds: 
+                        - value: 0
+                          color: 'rgb(19, 244, 239, 1)'
+                        - value: 1
+                          color: 'rgb(255, 0, 92, 1)'
+          - type: "custom:button-card"
+            template: devider
+          - type: horizontal-stack
+            cards:
+              - type: "custom:button-card"
+                entity: sensor.nuc_cpu_used
+                name: NUC
+                icon: mdi:docker
+                template: thermostat
+                variables:
+                  top_right: '[[[ return "CPU " + entity.state + "%"; ]]]'
+                  bottom_right: '[[[ return "Mem " + states["sensor.nuc_ram_used"].state + "%"; ]]]'
+                  graph_entity: sensor.nuc_cpu_used
+              - type: "custom:button-card"
+                entity: sensor.nuc_cpu_used
+                name: Battery
+                icon: mdi:battery-alert
+                template: thermostat
+                variables:
+                  top_right: '[[[ return "Dead " + entity.state; ]]]'
+                  bottom_right: '[[[ return "Low " + states["sensor.nuc_ram_used"].state; ]]]'
+                  graph_entity: sensor.nuc_cpu_used
+              - type: "custom:button-card"
+                entity: vacuum.downstairs_vacuum
+                name: Downstairs
+                icon: bha:roborock
+                template: thermostat
+                variables:
+                  top_right: '[[[ return entity.state; ]]]'
+                  bottom_right: '[[[ return entity.attributes.battery_level + "%"; ]]]'
+                  graph_entity: vacuum.downstairs_vacuum
+              - type: "custom:button-card"
+                entity: vacuum.upstairs_vacuum
+                name: Upstairs
+                icon: bha:roborock
+                template: thermostat
+                variables:
+                  top_right: '[[[ return entity.state; ]]]'
+                  bottom_right: '[[[ return entity.attributes.battery_level + "%"; ]]]'
+                  graph_entity: vacuum.upstairs_vacuum
+  - title: Cameras
+    path: cameras
+    panel: true
+    badges: []
+    icon: 'mdi:cctv'
+    id: cameras
+    cards:
+      - id: cameras
+        type: custom:vertical-stack-in-card
+        style: |
+          ha-card {
+            background: none;
+            box-shadow: none;
+            width: 90%;
+            max-width: 800px;
+            align: center;
+            margin: 5% auto auto auto;
+          }
+          .card-header {
+            font-size: 20px;
+            font-weight: bold;
+          }
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: picture-entity
+                entity: camera.entrance
+                camera_view: live
+                name: Entrance
+                aspect_ratio: 16x9
+                show_state: false
+          - type: horizontal-stack
+            cards:
+              - type: picture-entity
+                entity: camera.frontyard
+                camera_view: live
+                name: Frontyard
+                aspect_ratio: 16x9
+                show_state: false
+              - type: picture-entity
+                entity: camera.frontroom
+                camera_view: live
+                name: Frontroom
+                aspect_ratio: 16x9
+                show_state: false
+          - type: horizontal-stack
+            cards:
+              - type: picture-entity
+                entity: camera.stairs
+                camera_view: live
+                name: Stairs
+                aspect_ratio: 16x9
+                show_state: false
+              - type: picture-entity
+                entity: camera.lounge
+                camera_view: live
+                name: Lounge
+                aspect_ratio: 16x9
+                show_state: false
+          - type: horizontal-stack
+            cards:
+              - type: picture-entity
+                entity: camera.garage
+                camera_view: live
+                name: Garage
+                aspect_ratio: 16x9
+                show_state: false
+              - type: picture-entity
+                entity: camera.backyard
+                camera_view: live
+                name: Backyard
+                aspect_ratio: 16x9
+                show_state: false
+  - title: Media
+    path: media
+    panel: true
+    badges: []
+    icon: 'mdi:speaker-wireless'
+    id: media
+    cards:
+      - id: speakers
+        type: custom:vertical-stack-in-card
+        style: |
+          ha-card {
+            background: none;
+            box-shadow: none;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 0px;
+            align: center;
+            margin: 5% auto auto auto;
+          }
+          .card-header {
+            font-size: 20px;
+            font-weight: bold;
+          }
+        cards:
+          - type: custom:mini-media-player
+            entity: media_player.frontroom_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.lounge_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.office_amp
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.master_bed_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.office_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.master_bath_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.rishiroom_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.guest_bath_sonos
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.office_display
+            info: short
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.bedroom_tv
+            info: short
+            artwork: material
+  - title: Map
+    path: map
+    panel: true
+    badges: []
+    icon: 'mdi:account-multiple'
+    id: map
+    cards:
+      - id: map
+        type: custom:vertical-stack-in-card
+        style: |
+          ha-card {
+            background: none;
+            box-shadow: none;
+            width: 90%;
+            max-width: 800px;
+            align: center;
+            margin: 5% auto auto auto;
+          }
+          .card-header {
+            font-size: 20px;
+            font-weight: bold;
+          }
+        cards:
+          - id: persons
+            type: horizontal-stack
+            cards:
+              - type: picture-elements
+                image: /local/images/ram.jpg
+                elements:
+                  - type: state-label
+                    entity: device_tracker.google_maps_105562789917801562434
+                    style:
+                      left: 20%
+                      top: 90%
+                      font-size: 70% 
+                  - type: state-label
+                    entity: sensor.rams_iphone_battery_level
+                    style:
+                      left: 80%
+                      top: 90%
+                      font-size: 70%   
+              - type: picture-elements
+                image: /local/images/souji.jpg
+                elements:
+                  - entity: device_tracker.google_maps_112744783890416043065
+                    style:
+                      left: 20%
+                      top: 90%
+                      font-size: 70%  
+                    type: state-label
+                  - type: state-label
+                    entity: sensor.sowjanyas_iphone_battery_level
+                    style:
+                      left: 80%
+                      top: 90%
+                      font-size: 70% 
+                
+              - type: picture-elements
+                image: /local/images/rishi.jpg
+                elements:
+                  - entity: device_tracker.google_maps_117264970477661716753
+                    style:
+                      left: 20%
+                      top: 90%
+                      font-size: 70%  
+                    type: state-label
+                  - type: state-label
+                    entity: sensor.rishis_phone_battery_level
+                    style:
+                      left: 80%
+                      top: 90%
+                      font-size: 70%
+                
+              - type: picture-elements
+                image: /local/images/ziggy.jpg
+                elements:
+                  - entity: device_tracker.google_maps_117264970477661716753
+                    style:
+                      left: 30%
+                      top: 90%
+                      font-size: 70%  
+                    type: state-label
+                  - type: state-label
+                    entity: sensor.rams_iphone_battery_level
+                    style:
+                      left: 80%
+                      top: 90%
+                      font-size: 70%
+                
+          - type: map
+            entities:
+              - zone.home
+              - zone.work
+              - zone.school
+              - zone.gym
+              - person.ram
+              - person.souji
+              - person.rishi
+              - person.ziggy
