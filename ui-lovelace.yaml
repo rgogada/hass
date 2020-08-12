@@ -4,12 +4,6 @@ title: Home
 
 custom_header:
   compact_mode: true
-  # header_text: '{{ dayNameLong }} {{ dayNumLZ }} {{ monthNameLong }} {{ year4d }}<br>{{ time }}'
-  # header_text_css: 'Roboto,sans-serif; font-weight: bold; margin-top: 5px;'
-  # hide_config: true
-  # hide_help: true
-  # menu_dropdown: true
-  # indicator_top: true
   elements_color: var(--primary-color)
   active_tab_color: var(--accent-color)
   tab_indicator_color: var(--primary-color)
@@ -18,7 +12,7 @@ custom_header:
 
 button_card_templates:
   devider:
-    name: <img src=/local/images/trans.png>
+    # name: <img src=/local/images/trans.png>
     styles:
       card: 
         - background: none
